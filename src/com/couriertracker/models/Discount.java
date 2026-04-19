@@ -1,11 +1,15 @@
+package com.couriertracker.models;
+
+import java.util.UUID;
+
 public class Discount {
     private String discountID;
     private String description;
     private double percentage;
     private boolean isActive;
 
-    public Discount(String discountID, String description, double percentage, boolean isActive) {
-        this.discountID = discountID;
+    public Discount(String description, double percentage, boolean isActive) {
+        this.discountID = UUID.randomUUID().toString();
         this.description = description;
         this.percentage = percentage;
         this.isActive = isActive;
@@ -22,15 +26,11 @@ public class Discount {
     public double getPercentage() {
         return percentage;
     }
-    
+
     public boolean isActive() {
         return isActive;
     }
 
-    public void setDiscountID(String discountID) {
-        this.discountID = discountID;
-    }
-    
     public void setDescription(String description) {
         this.description = description;
     }
@@ -39,15 +39,18 @@ public class Discount {
         this.percentage = percentage;
     }
 
-    public void activate(){
+    public void activate() {
         this.isActive = true;
     }
 
-    public void deactivate(){
+    public void deactivate() {
         this.isActive = false;
     }
-    
-    public double applyDiscount(double amount){
-        return amount * (1 - percentage/100);
+
+    public double applyDiscount(double amount) {
+        if (!isActive) {
+            return amount;
+        }
+        return amount * (1 - percentage / 100);
     }
 }
