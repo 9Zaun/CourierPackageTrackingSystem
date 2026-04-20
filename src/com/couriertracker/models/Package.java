@@ -68,6 +68,14 @@ public class Package {
         currentStopIndex++;
     }
 
+    public boolean waitingForChainedRoute() {
+        return waitingForChainedRoute;
+    }
+
+    public double calculateBaseCharge() {
+        return 50.0;
+    }
+
     public String getPackageID() {
         return packageID;
     }
