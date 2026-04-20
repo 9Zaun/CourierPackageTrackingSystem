@@ -57,22 +57,14 @@ public class Package {
         this.currentAgent = null;
         this.isChained = false;
         this.chainedRoute = null;
+        this.waitingForChainedRoute = false;
         this.handoffHub = null;
         this.hubArrivalStep = -1;
         this.lostAtStep = -1;
         this.lastKnownHubCity = null;
     }
 
-    /** Base charge: flat 100 plus 25 per segment when a route is assigned (segment count = stops - 1). */
-    public double calculateBaseCharge() {
-        if (route == null) {
-            return 100.0;
-        }
-        int segments = Math.max(0, route.getStops().length - 1);
-        return 100.0 + 25.0 * segments;
-    }
-
-    public void advanceToNextStop() {
+    public void advanceToNextStop() { // useless? i think we don't need this
         currentStopIndex++;
     }
 
@@ -192,6 +184,10 @@ public class Package {
 
     public void setChainedRoute(Route chainedRoute) {
         this.chainedRoute = chainedRoute;
+    }
+
+    public void setWaitingForChainedRoute(boolean waitingForChainedRoute) {
+        this.waitingForChainedRoute = waitingForChainedRoute;
     }
 
     public void setHandoffHub(String handoffHub) {

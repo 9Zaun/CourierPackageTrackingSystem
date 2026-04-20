@@ -6,7 +6,6 @@ public enum PackageStatus {
     IN_TRANSIT, // moving between hubs via delivery agent
     AT_HUB, // arrived at an intermediate stop, waiting for departure to next stop
     IN_WAREHOUSE, // arrived at a stop, got handed off but no agents available; waiting for agent pickup
-    OUT_FOR_DELIVERY, // last agent has it, heading towards receiver
     DELIVERED, // reached destination
     DELAYED, // mid-transit issues, waiting for delivery agent to resolve
     CANCELLED, // cancelled by sender or receiver

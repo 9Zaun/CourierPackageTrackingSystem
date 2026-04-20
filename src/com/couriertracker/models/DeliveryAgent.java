@@ -35,10 +35,10 @@ public class DeliveryAgent {
     }
 
     public void pickUpPackages() {
-        if(route == null){
+        if(activeRoute == null){
             return;
         }
-        ArrayList<Package> atStop = new ArrayList<>(route.getPackagesAtStop(currentStopIndex));
+        ArrayList<Package> atStop = new ArrayList<>(activeRoute.getPackagesAtStop(currentStopIndex));
         for (Package pkg : atStop) {
 
             if(!pkg.isChained()){
@@ -50,21 +50,18 @@ public class DeliveryAgent {
                 carriedPackages.add(pkg);
             } else {
                 Route expectedRoute = pkg.waitingForChainedRoute() ? pkg.getChainedRoute() : pkg.getRoute();
-                if(expectedRoute.getRouteID() == activeRoute.getRouteID()){
+                if(expectedRoute.getRouteID().equals(activeRoute.getRouteID())){
                     pkg.setStatus(PackageStatus.PICKED_UP);
                     pkg.setCurrentAgent(this);
                     pkg.addTrackingRecord(new TrackingRecord(pkg.getPackageID(), currentLocation,
                             PackageStatus.PICKED_UP, this));
                     pkg.setHubArrivalStep(-1);
                     carriedPackages.add(pkg);
-                    if(pkg.waitingForChainedRoute()){
-                        pkg.setWaitingForChainedRoute(false);
-                        pkg.setChainedRoute(null);
-                    }
+                    
                 }
             }
         }
-        route.clearStop(currentStopIndex);
+        activeRoute.clearStop(currentStopIndex);
     }
 
     public void departHub() {
@@ -76,40 +73,47 @@ public class DeliveryAgent {
         }
     }
 
-    public void selectNextRoute() {
-        maxCount = 0;
-        nextRoute = null;
+    public boolean selectNextRoute() {
+        int maxCount = 0;
+        Route nextRoute = null;
         for(Route route : ownedRoutes){ // find route with greatest demand 
             if(route.getWarehousePackageCount() > maxCount){
                 maxCount = route.getWarehousePackageCount();
                 nextRoute = route;
             }
         }
-        if(nextRoute.routeID == activeRoute.routeID){ // if greatest demand route is same as active route, reverse direction instead of finding side with greater demand
+        if(nextRoute == null){ // if all routes have 0 packages, do nothing (agent tries again later)
+            return false;
+        }
+        if(nextRoute.getRouteID().equals(activeRoute != null ? activeRoute.getRouteID() : "")){  // if greatest demand route is same as active route, reverse direction instead of finding side with greater demand
             reverseDirection = !reverseDirection;
             activeRoute = nextRoute;
             available = false;
             currentLocation = reverseDirection ? nextRoute.getStops()[nextRoute.getStops().length - 1] : nextRoute.getStops()[0];
-            return;
+            currentStopIndex = reverseDirection ? nextRoute.getStops().length - 1 : 0;
+            return true;
         }
 
         int first_half = 0; int second_half = 0;
         for(int i = 0; i < nextRoute.getStops().length/2; i++){ // find side with greater demand 
-            first_half += nextRoute.warehouse.get(i).size();
-            second_half += nextRoute.warehouse.get(nextRoute.getStops().length - i - 1).size();
+            first_half += nextRoute.getPackagesAtStop(i).size();
+            second_half += nextRoute.getPackagesAtStop(nextRoute.getStops().length - i - 1).size();
         }
         if(first_half > second_half){
             activeRoute = nextRoute;
             reverseDirection = false;
             currentStopIndex = 0;
             currentLocation = nextRoute.getStops()[0];
+            available = false;
+            return true;
         } else {
             activeRoute = nextRoute;
             reverseDirection = true;
             currentStopIndex = nextRoute.getStops().length - 1;
             currentLocation = nextRoute.getStops()[nextRoute.getStops().length - 1];
+            available = false;
+            return true;
         }
-        available = false;
     }
 
     public void arriveAtHub() {
@@ -129,8 +133,53 @@ public class DeliveryAgent {
 
     }
 
-    public void dropOffPackages() {
-        // TODO: implement manually
+    public ArrayList<Package> dropOffPackages() {
+        if(activeRoute == null){
+            return new ArrayList<>();
+        }
+        ArrayList<Package> dropOff = new ArrayList<>(carriedPackages);
+        ArrayList<Package> deliveredPackages = new ArrayList<>();
+        for(Package pkg : dropOff){
+            if(!pkg.isChained()){
+                if(pkg.getDestination().equals(currentLocation)){
+                    pkg.setStatus(PackageStatus.DELIVERED);
+                    pkg.setLastKnownHubCity(currentLocation);
+                    pkg.addTrackingRecord(new TrackingRecord(pkg.getPackageID(), currentLocation,
+                            PackageStatus.DELIVERED, this));
+                    pkg.setCurrentAgent(null);
+                    carriedPackages.remove(pkg);
+                    deliveredPackages.add(pkg);
+                }
+            } else {
+                if(!pkg.waitingForChainedRoute()){
+                    if(pkg.getHandoffHub().equals(currentLocation)){
+                        pkg.setStatus(PackageStatus.IN_WAREHOUSE);
+                        pkg.setLastKnownHubCity(currentLocation);
+                        pkg.setWaitingForChainedRoute(true);
+                        pkg.setRoute(pkg.getChainedRoute());
+                        pkg.getChainedRoute().addPackageToWarehouse(pkg.getChainedRoute().getStopIndex(currentLocation), pkg);
+                        pkg.addTrackingRecord(new TrackingRecord(pkg.getPackageID(), currentLocation,
+                                PackageStatus.IN_WAREHOUSE, this));
+                        pkg.setCurrentAgent(null);
+                        carriedPackages.remove(pkg);
+                        deliveredPackages.add(pkg);
+                    }
+                } else {
+                    if(pkg.getDestination().equals(currentLocation)){
+                        pkg.setStatus(PackageStatus.DELIVERED);
+                        pkg.setLastKnownHubCity(currentLocation);
+                        pkg.addTrackingRecord(new TrackingRecord(pkg.getPackageID(), currentLocation,
+                                PackageStatus.DELIVERED, this));
+                        pkg.setCurrentAgent(null);
+                        carriedPackages.remove(pkg);
+                        deliveredPackages.add(pkg);
+                    }
+                }
+
+            }
+
+        }
+        return deliveredPackages;
     }
 
     public String getAgentID() {

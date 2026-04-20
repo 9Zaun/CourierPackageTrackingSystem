@@ -52,12 +52,12 @@ public class CourierService {
         inventory.handleStartTravelling(agent);
     }
 
-    public void agentArrived(DeliveryAgent agent) {
-        inventory.handleArrival(agent);
+    public boolean agentArrived(DeliveryAgent agent) {
+        return inventory.handleArrival(agent);
     }
 
-    public void agentSelectsRoute(DeliveryAgent agent) {
-        inventory.agentSelectsRoute(agent);
+    public boolean agentSelectsRoute(DeliveryAgent agent) {
+        return inventory.agentSelectsRoute(agent);
     }
 
     public void markDelivered(Package pkg) {

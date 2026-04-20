@@ -93,15 +93,57 @@ public class Inventory {
     }
 
     private boolean attemptRouteAssignment(Package pkg) {
-        // TODO: implement manually
-        return false;
-    }
+        ArrayList<Route> sourceRoutes = new ArrayList<>();
+        ArrayList<Route> destinationRoutes = new ArrayList<>();
+        // First pass: single route search covering both source and destination
+        for(Route r : routes){
+            boolean coversSource = false;
+            boolean coversDestination = false;
+            for(String stop : r.getStops()){
+                if(stop.equals(pkg.getSource())){
+                    coversSource = true;
+                }
+                if(stop.equals(pkg.getDestination())){
+                    coversDestination = true;
+                }
+            }
+            if(coversSource){
+                sourceRoutes.add(r);
+            }
+            if(coversDestination){
+                destinationRoutes.add(r);
+            }
+            if(coversSource && coversDestination){
+                pkg.setRoute(r);
+                pkg.setCurrentStopIndex(r.getStopIndex(pkg.getSource()));
+                pkg.setLastKnownHubCity(pkg.getSource());
+                pkg.setChained(false);
+                return true;
+            }
 
-    public void handleConfirmPickups(DeliveryAgent agent) {
-        if (agent == null || agent.getActiveRoute() == null) {
-            return;
         }
-        agent.pickUpPackages(agent.getActiveRoute(), agent.getCurrentStopIndex());
+        // Second pass: find chained route pair that covers both source and destination and shares common hub
+        if(sourceRoutes.size() > 0 && destinationRoutes.size() > 0){
+            for(Route s : sourceRoutes){
+                for(Route d : destinationRoutes){
+                    for(String stop : s.getStops()){
+                        for(String dStop : d.getStops()){
+                            if(dStop.equals(stop) && !stop.equals(pkg.getSource())){
+                                pkg.setRoute(s);
+                                pkg.setChained(true);
+                                pkg.setChainedRoute(d);
+                                pkg.setHandoffHub(stop);
+                                pkg.setWaitingForChainedRoute(false);
+                                pkg.setCurrentStopIndex(s.getStopIndex(pkg.getSource()));
+                                pkg.setLastKnownHubCity(pkg.getSource());
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public void handleStartTravelling(DeliveryAgent agent) {
@@ -197,19 +239,73 @@ public class Inventory {
         terminatedPackages.add(pkg);
     }
 
-    public void handleArrival(DeliveryAgent agent) {
-        // TODO: implement manually
+    public boolean handleArrival(DeliveryAgent agent) {
+        systemStepCount++;
+
+        agent.arriveAtHub();
+        
+        checkDelayedPackages();
+
+        boolean finished = ((agent.getCurrentStopIndex() == agent.getActiveRoute().getStops().length - 1 && !agent.isReverseDirection()) || (agent.getCurrentStopIndex() == 0 && agent.isReverseDirection()));
+        if(finished){
+            agent.setAvailable(true);
+            agent.setActiveRoute(null);
+        }
+
+        return finished;
+        
+        
+    }
+
+
+    public void handleConfirmPickups(DeliveryAgent agent) {
+        agent.pickUpPackages();
+        ArrayList<Package> droppedPackages = agent.dropOffPackages();
+        for(Package pkg : droppedPackages){
+            inventoryFileHandler.logEvent(pkg.getTrackingRecords().get(pkg.getTrackingRecords().size() - 1));
+            if(pkg.getStatus() == PackageStatus.DELIVERED){
+                markDelivered(pkg);
+            }
+        }
+        for(Package pkg : droppedPackages){
+            if(pkg.getStatus() == PackageStatus.IN_WAREHOUSE){
+                pkg.setHubArrivalStep(systemStepCount);
+            }
+        }
+        for(Package pkg : agent.getCarriedPackages()){
+            inventoryFileHandler.logEvent(pkg.getTrackingRecords().get(pkg.getTrackingRecords().size() - 1));
+        }
     }
 
     public void checkDelayedPackages() {
-        // TODO: implement manually
+        // scannign all route warehouses for delayed packages
+        for(Route route : routes){
+            for(int i = 0; i < route.getStops().length; i++){
+                ArrayList<Package> pkgs = new ArrayList<>(route.getPackagesAtStop(i));
+                for(Package pkg : pkgs){
+                    if(pkg.getHubArrivalStep() != -1 && (systemStepCount - pkg.getHubArrivalStep()) >= DELAY_THRESHOLD) {
+                        pkg.setStatus(PackageStatus.DELAYED);
+                        TrackingRecord tr = new TrackingRecord(pkg.getPackageID(), pkg.getLastKnownHubCity(), PackageStatus.DELAYED, null);
+                        pkg.addTrackingRecord(tr);
+                        inventoryFileHandler.logEvent(tr);
+                    }
+                }
+            }
+        }
+        // check lost packages for termination
+        ArrayList<Package> lostCopy = new ArrayList<>(lostPackages);
+        for(Package pkg : lostCopy){
+            if((systemStepCount - pkg.getLostAtStep()) >= 5){
+                terminatePackage(pkg);
+            }
+        }
     }
 
-    public void agentSelectsRoute(DeliveryAgent agent) {
+    public boolean agentSelectsRoute(DeliveryAgent agent) {
         if (agent == null) {
-            return;
+            return false;
         }
-        agent.selectNextRoute();
+        return agent.selectNextRoute();
     }
 
     public Package trackPackage(String packageId) {
