@@ -17,6 +17,28 @@ public class CourierService {
         setupAgentsAndRoutes();
     }
 
+    public Package getPackageById(String packageId){
+        // check active packages
+        for(Package p : inventory.getActivePackages()){
+            if(p.getPackageID().equals(packageId)){
+                return p;
+            }
+        }
+        // check lost packages
+        for(Package p : inventory.getLostPackages()){
+            if(p.getPackageID().equals(packageId)){
+                return p;
+            }
+        }
+        // check delivered packages
+        for(Package p : inventory.getDeliveredPackages()){
+            if(p.getPackageID().equals(packageId)){
+                return p;
+            }
+        }
+        return null;
+    }
+
     public String getServiceName() {
         return serviceName;
     }

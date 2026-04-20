@@ -44,6 +44,28 @@ public class Inventory {
         this.systemStepCount = 0;
     }
 
+    public Package getPackageById(String packageId){
+        // check active packages
+        for(Package p : activePackages){
+            if(p.getPackageID().equals(packageId)){
+                return p;
+            }
+        }
+        // check lost packages
+        for(Package p : lostPackages){
+            if(p.getPackageID().equals(packageId)){
+                return p;
+            }
+        }
+        // check delivered packages
+        for(Package p : deliveredPackages){
+            if(p.getPackageID().equals(packageId)){
+                return p;
+            }
+        }
+        return null;
+    }
+
     public void addCustomerIfAbsent(Customer customer) {
         if (customer == null) {
             return;
