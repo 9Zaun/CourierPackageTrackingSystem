@@ -1,12 +1,225 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Track</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+
+    <!-- Kaspersky Script -->
+    <script type="text/javascript"
+            src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js"
+            charset="UTF-8"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f8fafc;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 60px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            font-size: 14px;
+        }
+
+        .search-box button {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            background: #2563eb;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .search-box button:hover {
+            background: #1d4ed8;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .card h2 {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 20px;
+            font-size: 14px;
+        }
+
+        .details div {
+            padding: 6px 0;
+        }
+
+        .label {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .value {
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        th {
+            text-align: left;
+            color: #64748b;
+            font-weight: 600;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        td {
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .error {
+            text-align: center;
+            color: #dc2626;
+            margin-top: 20px;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Track</h1>
-    <p th:if="${message}" th:text="${message}"></p>
+
+<div class="container">
+
+    <h1>Track Package</h1>
+    <p class="subtitle">Enter your package ID to view status and delivery progress</p>
+
+    <a th:href="@{/}" class="back">← Back to Home</a>
+
+    <!-- SEARCH -->
+    <form action="/track" method="post" class="search-box">
+        <input type="text" name="packageId" placeholder="Enter Package ID" required/>
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- PACKAGE DETAILS -->
+    <div th:if="${pkg != null}" class="card">
+
+        <h2>Package Information</h2>
+
+        <div class="details">
+            <div>
+                <div class="label">Package ID</div>
+                <div class="value" th:text="${pkg.packageID}"></div>
+            </div>
+            <div>
+                <div class="label">Status</div>
+                <div class="value" th:text="${pkg.status}"></div>
+            </div>
+            <div>
+                <div class="label">From</div>
+                <div class="value" th:text="${pkg.source}"></div>
+            </div>
+            <div>
+                <div class="label">To</div>
+                <div class="value" th:text="${pkg.destination}"></div>
+            </div>
+            <div>
+                <div class="label">Sender</div>
+                <div class="value" th:text="${pkg.senderName}"></div>
+            </div>
+            <div>
+                <div class="label">Receiver</div>
+                <div class="value" th:text="${pkg.receiverName}"></div>
+            </div>
+            <div>
+                <div class="label">Last Known Hub</div>
+                <div class="value" th:text="${pkg.lastKnownHubCity}"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TRACKING HISTORY -->
+    <div th:if="${pkg != null}" class="card">
+
+        <h2>Tracking History</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                    <th>Handled By</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="record : ${pkg.trackingRecords}">
+                    <td th:text="${record.location}"></td>
+                    <td th:text="${record.status}"></td>
+                    <td th:text="${record.timestamp}"></td>
+                    <td th:text="${record.agent != null ? record.agent.name : 'System'}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <!-- ERROR -->
+    <div th:if="${pkg == null and #request.method == 'POST'}" class="error">
+        No package found. Please check the ID and try again.
+    </div>
+
+</div>
+
 </body>
 </html>

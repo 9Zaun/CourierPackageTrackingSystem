@@ -1,12 +1,135 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Home</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+
+    <!-- Kaspersky Script -->
+    <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js" charset="UTF-8"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .home-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .half {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .left {
+            background: #f4f6f8;
+        }
+
+        .right {
+            background: #1e293b;
+            color: white;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .track-btn {
+            background: #2563eb;
+            color: white;
+        }
+
+        .track-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .staff-btn {
+            background: #38bdf8;
+            color: black;
+        }
+
+        .staff-btn:hover {
+            background: #0ea5e9;
+        }
+
+        input {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            margin-top: 10px;
+        }
+
+        #staff-links button {
+            width: 200px;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Home</h1>
-    <p th:if="${message}" th:text="${message}"></p>
+
+<div class="home-container">
+
+    <!-- LEFT HALF: CUSTOMER -->
+    <div class="half left">
+        <h2>Customer Portal</h2>
+
+        <a th:href="@{/track}">
+            <button class="track-btn">Track Your Package</button>
+        </a>
+    </div>
+
+    <!-- RIGHT HALF: STAFF -->
+    <div class="half right">
+        <h2>Staff Portal</h2>
+
+        <div id="staff-gate">
+            <input type="password" id="staffPassword" placeholder="Enter Password"/>
+            <button class="staff-btn" onclick="checkPassword()">Enter</button>
+            <p id="error" style="color:red; display:none;">Wrong password</p>
+        </div>
+
+        <div id="staff-links" style="display:none;">
+            <a th:href="@{/register}">
+                <button class="staff-btn">Registration Controller</button>
+            </a>
+
+            <a th:href="@{/dashboard}">
+                <button class="staff-btn">Agent Controller</button>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function checkPassword() {
+        const pass = document.getElementById("staffPassword").value;
+
+        if (pass === "staff123") {
+            document.getElementById("staff-gate").style.display = "none";
+            document.getElementById("staff-links").style.display = "block";
+        } else {
+            document.getElementById("error").style.display = "block";
+        }
+    }
+</script>
+
 </body>
 </html>
