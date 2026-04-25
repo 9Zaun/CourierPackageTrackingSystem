@@ -2,6 +2,7 @@ package com.couriertracker.ui.controllers;
 
 import com.couriertracker.core.CourierService;
 import com.couriertracker.models.DeliveryAgent;
+import com.couriertracker.models.Package;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -75,6 +76,32 @@ public class DashboardController {
             return "redirect:/dashboard";
         }
         courierService.confirmPickups(agent);
+        return "redirect:/dashboard";
+    }
+
+    @PostMapping("/dashboard/flag-lost")
+    public String flagLost(
+            @RequestParam("agentName") String agentName,
+            @RequestParam("packageId") String packageId,
+            RedirectAttributes redirectAttributes) {
+        DeliveryAgent agent = courierService.getAgentByName(agentName);
+        if (agent == null) {
+            redirectAttributes.addFlashAttribute("message", "Agent not found");
+            return "redirect:/dashboard";
+        }
+        Package pkg = null;
+        for (Package p : courierService.getActivePackages()) {
+            if (p.getPackageID().equals(packageId)) {
+                pkg = p;
+                break;
+            }
+        }
+        if (pkg == null) {
+            redirectAttributes.addFlashAttribute("message", "Package not found");
+            return "redirect:/dashboard";
+        }
+        courierService.handleLostPackage(pkg, agent);
+        redirectAttributes.addFlashAttribute("message", "Package flagged as lost");
         return "redirect:/dashboard";
     }
 }
