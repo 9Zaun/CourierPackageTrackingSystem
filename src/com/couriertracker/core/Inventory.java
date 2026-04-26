@@ -270,6 +270,7 @@ public class Inventory {
 
         boolean finished = ((agent.getCurrentStopIndex() == agent.getActiveRoute().getStops().length - 1 && !agent.isReverseDirection()) || (agent.getCurrentStopIndex() == 0 && agent.isReverseDirection()));
         if(finished){
+            agent.reDepositUndeliveredPackages();
             agent.setAvailable(true);
             agent.setActiveRoute(null);
         }
