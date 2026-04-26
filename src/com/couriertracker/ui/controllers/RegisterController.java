@@ -2,6 +2,7 @@ package com.couriertracker.ui.controllers;
 
 import com.couriertracker.core.CourierService;
 import com.couriertracker.models.Customer;
+import com.couriertracker.models.Package;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,7 +30,9 @@ public class RegisterController {
             @RequestParam("destinationCity") String destinationCity,
             RedirectAttributes redirectAttributes) {
         Customer customer = new Customer("", senderName, "", "", senderCity, "", "", "", null);
-        courierService.registerShipment(customer, receiverName, destinationCity);
+        Package pkg = courierService.createPackage(customer, receiverName, destinationCity);
+        courierService.registerPackage(pkg, customer);
+        redirectAttributes.addFlashAttribute("packageId", pkg.getPackageID());
         redirectAttributes.addFlashAttribute("message", "Package registered successfully");
         return "redirect:/register";
     }
