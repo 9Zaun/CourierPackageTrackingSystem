@@ -38,6 +38,12 @@ public class DashboardController {
         for (Route r : agent.getOwnedRoutes()) {
             System.out.println("Route " + r.getRouteID() + " warehouse count: " + r.getWarehousePackageCount());
         }
+        for (Package pkg : agent.getCarriedPackages()) {
+            System.out.println("Package: " + pkg.getPackageID() + 
+                " dest: " + pkg.getDestination() + 
+                " isChained: " + pkg.isChained() + 
+                " status: " + pkg.getStatus());
+        }
         boolean selected = courierService.agentSelectsRoute(agent);
         if (selected) {
             redirectAttributes.addFlashAttribute("message", "Route selected");
