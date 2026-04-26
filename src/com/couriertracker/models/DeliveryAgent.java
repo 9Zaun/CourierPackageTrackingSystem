@@ -200,7 +200,7 @@ public class DeliveryAgent {
                 carriedPackages.remove(pkg);
             }
             // Handle chained package handoff at terminal
-            if (pkg.isChained() && !pkg.isWaitingForChainedRoute() 
+            if (pkg.isChained() && !pkg.waitingForChainedRoute() 
                     && pkg.getHandoffHub() != null 
                     && pkg.getHandoffHub().equals(currentLocation)) {
                 pkg.setStatus(PackageStatus.IN_WAREHOUSE);
