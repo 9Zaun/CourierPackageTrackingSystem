@@ -271,8 +271,7 @@ public class Inventory {
         boolean finished = ((agent.getCurrentStopIndex() == agent.getActiveRoute().getStops().length - 1 && !agent.isReverseDirection()) || (agent.getCurrentStopIndex() == 0 && agent.isReverseDirection()));
         if(finished){
             agent.reDepositUndeliveredPackages();
-            agent.setAvailable(true);
-            agent.setActiveRoute(null);
+            
         }
 
         return finished;
@@ -284,6 +283,14 @@ public class Inventory {
     public void handleConfirmPickups(DeliveryAgent agent) {
         agent.pickUpPackages();
         ArrayList<Package> droppedPackages = agent.dropOffPackages();
+        if (agent.getActiveRoute() != null) {
+            boolean finished = agent.getCurrentStopIndex() == agent.getActiveRoute().getStops().length - 1 && !agent.isReverseDirection()
+                || agent.getCurrentStopIndex() == 0 && agent.isReverseDirection();
+            if (finished) {
+                agent.setAvailable(true);
+                agent.setActiveRoute(null);
+            }
+        }
         for(Package pkg : droppedPackages){
             inventoryFileHandler.logEvent(pkg.getTrackingRecords().get(pkg.getTrackingRecords().size() - 1));
             if(pkg.getStatus() == PackageStatus.DELIVERED){
