@@ -59,6 +59,10 @@ public class DashboardController {
             redirectAttributes.addFlashAttribute("message", "Agent not found");
             return "redirect:/dashboard";
         }
+        if (agent.getActiveRoute() == null) {
+            redirectAttributes.addFlashAttribute("message", "Agent has no active route");
+            return "redirect:/dashboard";
+        }
         boolean finished = courierService.agentArrived(agent);
         if (finished) {
             redirectAttributes.addFlashAttribute("message", "Route complete");
