@@ -44,6 +44,12 @@ public class DashboardController {
                 " isChained: " + pkg.isChained() + 
                 " status: " + pkg.getStatus());
         }
+        for (Package pkg : courierService.getActivePackages()) {
+            System.out.println("PKG " + pkg.getPackageID() + 
+                " route: " + (pkg.getRoute() != null ? pkg.getRoute().getRouteID() : "null") +
+                " chainedRoute: " + (pkg.getChainedRoute() != null ? pkg.getChainedRoute().getRouteID() : "null") +
+                " handoffHub: " + pkg.getHandoffHub());
+        }
         for (com.couriertracker.models.Route r : courierService.getRoutes()) {
             System.out.println("GLOBAL Route " + r.getRouteID() + " warehouse: " + r.getWarehousePackageCount());
         }
