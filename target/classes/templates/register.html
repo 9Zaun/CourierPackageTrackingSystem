@@ -1,12 +1,69 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Register Shipment</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
 </head>
 <body>
-    <h1>Register</h1>
-    <p th:if="${message}" th:text="${message}"></p>
+
+<div class="bg"></div>
+
+<div class="page-container">
+
+    <h1>Register a Shipment</h1>
+
+    <a th:href="@{/}" class="btn-back">← Back to Home</a>
+
+    <p th:if="${message}" class="flash-message" th:text="${message}"></p>
+
+    <div class="cities">
+        <strong>Available cities:</strong>
+        Mumbai, Delhi, Bangalore, Chennai, Hyderabad, Kolkata, Jaipur,
+        Vijayawada, Bhubaneswar, Varanasi, Surat, Ahmedabad, Pune,
+        Vellore, Nagpur, Bhopal
+    </div>
+
+    <div class="outer">
+        <div class="inner">
+
+            <h2>New Shipment Registration</h2>
+
+            <form th:action="@{/register}" method="post">
+
+                <div class="grid">
+
+                    <div class="input-box">
+                        <label>Sender Name</label>
+                        <input type="text" name="senderName" placeholder="Full name" required/>
+                    </div>
+
+                    <div class="input-box">
+                        <label>Receiver Name</label>
+                        <input type="text" name="receiverName" placeholder="Full name" required/>
+                    </div>
+
+                    <div class="input-box">
+                        <label>Sender City</label>
+                        <input type="text" name="senderCity" placeholder="e.g. Mumbai" required/>
+                    </div>
+
+                    <div class="input-box">
+                        <label>Destination City</label>
+                        <input type="text" name="destinationCity" placeholder="e.g. Kolkata" required/>
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn-submit">Register Package</button>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
 </body>
 </html>

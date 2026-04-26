@@ -24,6 +24,9 @@ public class TrackController {
     public String trackPost(@RequestParam("packageId") String packageId, Model model) {
         Package pkg = courierService.trackPackage(packageId);
         model.addAttribute("pkg", pkg);
+        if (pkg == null) {
+            model.addAttribute("error", "Package not found");
+        }
         return "track";
     }
 }

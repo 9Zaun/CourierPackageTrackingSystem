@@ -215,7 +215,7 @@
     </div>
 
     <!-- ERROR -->
-    <div th:if="${pkg == null and #request.method == 'POST'}" class="error">
+    <div th:if="${pkg == null and error != null}" class="error">
         No package found. Please check the ID and try again.
     </div>
 
