@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Lost Package Management</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}"/>
 </head>
@@ -9,71 +10,80 @@
 
 <div class="bg"></div>
 
-<div class="container">
+<div class="page-container">
 
-    <!-- HEADER -->
-    <div class="header">
-        <h1>Lost Package Management </h1>
-        <div class="nav">
-            <a href="#">← Dashboard</a>
-            <a href="#">← Home</a>
-        </div>
+    <h1>Lost Package Management</h1>
+
+    <div class="nav">
+        <a th:href="@{/dashboard}">← Dashboard</a>
+        <a th:href="@{/}">← Home</a>
     </div>
 
-    <!-- CARD 1 -->
-    <div class="card outer">
-        <div class="card inner">
+    <p th:if="${message}" class="flash-message" th:text="${message}"></p>
+
+    <!-- FLAG A PACKAGE -->
+    <div class="outer">
+        <div class="inner">
 
             <h2>Flag a Package as Lost</h2>
-            <p class="desc"> Use when a delivery agent reports a missing package.</p>
+            <p>Use when a delivery agent reports a missing package.</p>
 
-            <div class="form-row">
-
-                <div class="field">
-                    <label>Package ID </label>
-                    <input type="text">
+            <form th:action="@{/lost/mark}" method="post">
+                <div class="grid">
+                    <div class="input-box">
+                        <label>Package ID</label>
+                        <input type="text" name="packageId" placeholder="Enter Package ID" required/>
+                    </div>
+                    <div class="input-box">
+                        <label>Agent Name</label>
+                        <input type="text" name="agentName" placeholder="Enter Agent Name" required/>
+                    </div>
                 </div>
-
-                <div class="field">
-                    <label>Agent Name 👮</label>
-                    <input type="text">
-                </div>
-
-            </div>
-
-            <button class="btn main">⚠ Mark as Lost</button>
+                <button type="submit" class="btn-submit">⚠ Mark as Lost</button>
+            </form>
 
         </div>
     </div>
 
-    <!-- CARD 2 -->
-    <div class="card outer">
-        <div class="card inner">
+    <!-- CURRENT LOST PACKAGES -->
+    <div class="outer">
+        <div class="inner">
 
             <h2>Current Lost Packages</h2>
 
-            <p class="empty"> No lost packages at this time. </p>
+            <p th:if="${lostTickets == null or #lists.isEmpty(lostTickets)}">
+                No lost packages at this time.
+            </p>
 
-            <table class="table">
+            <table th:if="${lostTickets != null and not #lists.isEmpty(lostTickets)}">
                 <thead>
                     <tr>
                         <th>Package ID</th>
                         <th>Last Known Hub</th>
                         <th>Route ID</th>
-                        <th>Flagged Step</th>
+                        <th>Flagged At Step</th>
                         <th>Resolve</th>
                         <th>Terminate</th>
                     </tr>
                 </thead>
-
                 <tbody>
-                    <tr>
-                        <td>LP-1234</td>
-                        <td>Hub Mumbai</td>
-                        <td>MUM-DLH-01</td>
-                        <td>Final Scan</td>
-                        <td><button class="btn blue">Resolve ✔</button></td>
-                        <td><button class="btn red">Terminate </button></td>
+                    <tr th:each="ticket : ${lostTickets}">
+                        <td th:text="${ticket.packageId}"></td>
+                        <td th:text="${ticket.lastKnownCity}"></td>
+                        <td th:text="${ticket.routeId}"></td>
+                        <td th:text="${ticket.lostAtStep}"></td>
+                        <td>
+                            <form th:action="@{/lost/resolve}" method="post" style="display:inline;">
+                                <input type="hidden" name="packageId" th:value="${ticket.packageId}"/>
+                                <button type="submit" class="btn-resolve">Resolve ✔</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form th:action="@{/lost/terminate}" method="post" style="display:inline;">
+                                <input type="hidden" name="packageId" th:value="${ticket.packageId}"/>
+                                <button type="submit" class="btn-danger">Terminate</button>
+                            </form>
+                        </td>
                     </tr>
                 </tbody>
             </table>
