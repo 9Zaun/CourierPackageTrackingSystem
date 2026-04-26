@@ -204,7 +204,7 @@
                     <td th:text="${record.location}"></td>
                     <td th:text="${record.status}"></td>
                     <td th:text="${record.timestamp}"></td>
-                    <td th:text="${record.agent != null ? record.agent.name : 'System'}"></td>
+                    <td th:text="${record.handledBy != null ? record.handledBy.name : 'System'}"></td>
                 </tr>
             </tbody>
         </table>

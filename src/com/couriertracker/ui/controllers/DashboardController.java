@@ -44,6 +44,9 @@ public class DashboardController {
                 " isChained: " + pkg.isChained() + 
                 " status: " + pkg.getStatus());
         }
+        for (com.couriertracker.models.Route r : courierService.getRoutes()) {
+            System.out.println("GLOBAL Route " + r.getRouteID() + " warehouse: " + r.getWarehousePackageCount());
+        }
         boolean selected = courierService.agentSelectsRoute(agent);
         if (selected) {
             redirectAttributes.addFlashAttribute("message", "Route selected");
