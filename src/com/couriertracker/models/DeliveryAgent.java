@@ -199,6 +199,22 @@ public class DeliveryAgent {
                 pkg.setCurrentAgent(null);
                 carriedPackages.remove(pkg);
             }
+            // Handle chained package handoff at terminal
+            if (pkg.isChained() && !pkg.isWaitingForChainedRoute() 
+                    && pkg.getHandoffHub() != null 
+                    && pkg.getHandoffHub().equals(currentLocation)) {
+                pkg.setStatus(PackageStatus.IN_WAREHOUSE);
+                pkg.setLastKnownHubCity(currentLocation);
+                pkg.setWaitingForChainedRoute(true);
+                pkg.setRoute(pkg.getChainedRoute());
+                pkg.getChainedRoute().addPackageToWarehouse(
+                    pkg.getChainedRoute().getStopIndex(currentLocation), pkg);
+                pkg.setCurrentStopIndex(pkg.getChainedRoute().getStopIndex(currentLocation));
+                pkg.addTrackingRecord(new TrackingRecord(
+                    pkg.getPackageID(), currentLocation, PackageStatus.IN_WAREHOUSE, this));
+                pkg.setCurrentAgent(null);
+                carriedPackages.remove(pkg);
+            }
         }
     }
 
