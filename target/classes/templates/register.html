@@ -21,7 +21,15 @@
     <div th:if="${packageId}" style="margin-top: 1rem;">
         <strong>Your Package ID:</strong>
         <span th:text="${packageId}"></span>
-        <p>Save this ID to track your package.</p>
+        <br/>
+        <strong>Status:</strong>
+        <span th:text="${packageStatus}"></span>
+        <p th:if="${packageStatus == 'RETURNED'}" style="color: red;">
+            No route available for this source/destination. Package has been returned.
+        </p>
+        <p th:if="${packageStatus != 'RETURNED'}">
+            Save this ID to track your package.
+        </p>
     </div>
 
     <div class="cities">
