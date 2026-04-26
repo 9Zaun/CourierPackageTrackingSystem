@@ -33,6 +33,7 @@ public class RegisterController {
         Package pkg = courierService.createPackage(customer, receiverName, destinationCity);
         courierService.registerPackage(pkg, customer);
         redirectAttributes.addFlashAttribute("packageId", pkg.getPackageID());
+        redirectAttributes.addFlashAttribute("packageStatus", pkg.getStatus().toString());
         redirectAttributes.addFlashAttribute("message", "Package registered successfully");
         return "redirect:/register";
     }

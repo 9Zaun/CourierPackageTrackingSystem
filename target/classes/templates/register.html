@@ -18,6 +18,12 @@
 
     <p th:if="${message}" class="flash-message" th:text="${message}"></p>
 
+    <div th:if="${packageId}" style="margin-top: 1rem;">
+        <strong>Your Package ID:</strong>
+        <span th:text="${packageId}"></span>
+        <p>Save this ID to track your package.</p>
+    </div>
+
     <div class="cities">
         <strong>Available cities:</strong>
         Mumbai, Delhi, Bangalore, Chennai, Hyderabad, Kolkata, Jaipur,
