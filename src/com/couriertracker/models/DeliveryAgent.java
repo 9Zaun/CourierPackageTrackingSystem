@@ -150,6 +150,23 @@ public class DeliveryAgent {
                     pkg.setCurrentAgent(null);
                     carriedPackages.remove(pkg);
                     deliveredPackages.add(pkg);
+                } else {
+                    // Package not at destination yet but agent finished route traversal at a terminal stop
+                    boolean atRouteTerminal = (!reverseDirection && currentStopIndex == activeRoute.getStops().length - 1)
+                            || (reverseDirection && currentStopIndex == 0);
+                    if (atRouteTerminal) {
+                        // Re-deposit into warehouse at current stop so demand is visible again
+                        activeRoute.addPackageToWarehouse(currentStopIndex, pkg);
+                        pkg.setStatus(PackageStatus.IN_WAREHOUSE);
+                        pkg.setLastKnownHubCity(currentLocation);
+                        pkg.setCurrentStopIndex(currentStopIndex);
+                        pkg.setHubArrivalStep(-1);
+                        pkg.addTrackingRecord(new TrackingRecord(pkg.getPackageID(), currentLocation,
+                                PackageStatus.IN_WAREHOUSE, this));
+                        pkg.setCurrentAgent(null);
+                        carriedPackages.remove(pkg);
+                        deliveredPackages.add(pkg);
+                    }
                 }
             } else {
                 if(!pkg.waitingForChainedRoute()){
