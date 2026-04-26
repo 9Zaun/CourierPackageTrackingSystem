@@ -23,7 +23,7 @@
 
     <div th:each="agent : ${agents}"
          class="agent-panel"
-         th:attr="data-agent=${agent.name}"
+         th:attr="data-agent=${agent.name}, data-available=${agent.available}, data-has-route=${agent.activeRoute != null}"
          style="display:none; flex-direction:row; gap:20px;">
 
         <div style="flex:2">
@@ -35,7 +35,7 @@
                 <form th:action="@{/dashboard/select-route}" method="post">
                     <input type="hidden" name="agentName" th:value="${agent.name}"/>
                     <button type="submit" class="btn-primary" th:formaction="@{/dashboard/select-route}"
-                            onclick="localStorage.setItem('dashboardState', 'on_route');">Select Route</button>
+                            onclick="localStorage.setItem('dashboardState', 'arrived');">Select Route</button>
                 </form>
             </div>
 
@@ -77,6 +77,7 @@
                         </td>
                     </tr>
                 </table>
+                <p th:if="${agent.activeRoute == null}">No packages at this stop</p>
                 <form th:action="@{/dashboard/confirm-pickups}" method="post">
                     <input type="hidden" name="agentName" th:value="${agent.name}"/>
                     <button type="submit" class="btn-primary" th:formaction="@{/dashboard/confirm-pickups}"
@@ -160,12 +161,19 @@
 
     window.onload = function() {
         const name = localStorage.getItem('selectedAgent');
-        const state = localStorage.getItem('dashboardState') || 'default';
+        let state = localStorage.getItem('dashboardState') || 'default';
         console.log('selectedAgent', name, 'dashboardState', state);
         if (name) {
             document.getElementById('agentSelect').value = name;
             document.querySelectorAll('.agent-panel').forEach(el => {
                 if (el.dataset.agent === name) {
+                    const avail = el.getAttribute('data-available');
+                    const hasRoute = el.getAttribute('data-has-route');
+                    if (avail === 'true' && hasRoute === 'false') {
+                        state = 'default';
+                    } else if (avail === 'false') {
+                        // trust localStorage for on_route, arrived, confirmed, etc.
+                    }
                     el.style.display = 'flex';
                     el.querySelectorAll('.state-panel').forEach(p => p.style.display = 'none');
                     const active = el.querySelector('.state-' + state);
