@@ -1,1 +1,2 @@
 eventType,packageId,customerName,destination,baseAmount,discountApplied,finalAmount,refundAmount,timestamp
+PAYMENT,67d09885-544d-47ec-bf72-39bffcbc56f2,Jayanth Jayaprakash,Kolkata,50.0,0.0,50.0,,2026-04-26T16:54:21.934975
