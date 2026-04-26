@@ -46,12 +46,12 @@ public class DashboardController {
         }
         for (Package pkg : courierService.getActivePackages()) {
             System.out.println("PKG " + pkg.getPackageID() + 
-                " route: " + (pkg.getRoute() != null ? pkg.getRoute().getRouteID() : "null") +
-                " chainedRoute: " + (pkg.getChainedRoute() != null ? pkg.getChainedRoute().getRouteID() : "null") +
+                " route: " + (pkg.getRoute() != null ? pkg.getRoute().getRouteID() + "(" + pkg.getRoute().getSource() + "->" + pkg.getRoute().getDestination() + ")" : "null") +
+                " chainedRoute: " + (pkg.getChainedRoute() != null ? pkg.getChainedRoute().getRouteID() + "(" + pkg.getChainedRoute().getSource() + "->" + pkg.getChainedRoute().getDestination() + ")" : "null") +
                 " handoffHub: " + pkg.getHandoffHub());
         }
-        for (com.couriertracker.models.Route r : courierService.getRoutes()) {
-            System.out.println("GLOBAL Route " + r.getRouteID() + " warehouse: " + r.getWarehousePackageCount());
+        for (Route r : courierService.getRoutes()) {
+            System.out.println("GLOBAL Route " + r.getRouteID() + "(" + r.getSource() + "->" + r.getDestination() + ") warehouse: " + r.getWarehousePackageCount());
         }
         boolean selected = courierService.agentSelectsRoute(agent);
         if (selected) {
