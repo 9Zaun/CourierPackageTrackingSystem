@@ -5,7 +5,7 @@ import com.couriertracker.enums.PackageStatus;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class Package {
+public class Package implements PackageType{
     private String packageID;
     private String senderName;
     private String receiverName;
