@@ -1,12 +1,87 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lost</title>
+    <title>Lost Package Management</title>
+    <link rel="stylesheet" href="style2.css">
 </head>
 <body>
-    <h1>Lost</h1>
-    <p th:if="${message}" th:text="${message}"></p>
+
+<div class="bg"></div>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>Lost Package Management </h1>
+        <div class="nav">
+            <a href="#">← Dashboard</a>
+            <a href="#">← Home</a>
+        </div>
+    </div>
+
+    <!-- CARD 1 -->
+    <div class="card outer">
+        <div class="card inner">
+
+            <h2>Flag a Package as Lost</h2>
+            <p class="desc"> Use when a delivery agent reports a missing package.</p>
+
+            <div class="form-row">
+
+                <div class="field">
+                    <label>Package ID </label>
+                    <input type="text">
+                </div>
+
+                <div class="field">
+                    <label>Agent Name 👮</label>
+                    <input type="text">
+                </div>
+
+            </div>
+
+            <button class="btn main">⚠ Mark as Lost</button>
+
+        </div>
+    </div>
+
+    <!-- CARD 2 -->
+    <div class="card outer">
+        <div class="card inner">
+
+            <h2>Current Lost Packages</h2>
+
+            <p class="empty"> No lost packages at this time. </p>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Package ID</th>
+                        <th>Last Known Hub</th>
+                        <th>Route ID</th>
+                        <th>Flagged Step</th>
+                        <th>Resolve</th>
+                        <th>Terminate</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>LP-1234</td>
+                        <td>Hub Mumbai</td>
+                        <td>MUM-DLH-01</td>
+                        <td>Final Scan</td>
+                        <td><button class="btn blue">Resolve ✔</button></td>
+                        <td><button class="btn red">Terminate </button></td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
 </body>
 </html>
