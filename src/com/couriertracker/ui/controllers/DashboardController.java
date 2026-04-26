@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.couriertracker.models.Route;
 
 @Controller
 public class DashboardController {
@@ -31,6 +32,11 @@ public class DashboardController {
         if (agent == null) {
             redirectAttributes.addFlashAttribute("message", "Agent not found");
             return "redirect:/dashboard";
+        }
+        System.out.println("Agent: " + agent.getName());
+        System.out.println("Carried: " + agent.getCarriedPackages().size());
+        for (Route r : agent.getOwnedRoutes()) {
+            System.out.println("Route " + r.getRouteID() + " warehouse count: " + r.getWarehousePackageCount());
         }
         boolean selected = courierService.agentSelectsRoute(agent);
         if (selected) {
