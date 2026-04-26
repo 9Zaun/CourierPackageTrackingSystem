@@ -1,12 +1,197 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Agent Operations Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
 </head>
 <body>
-    <h1>Dashboard</h1>
-    <p th:if="${message}" th:text="${message}"></p>
+<div class="page-container">
+    <h1>Agent Operations Dashboard</h1>
+    <p th:if="${message}" class="flash-message" th:text="${message}"></p>
+    <a th:href="@{/lost-packages}">View Lost Packages →</a>
+    <p>
+        <label for="agentSelect">Agent</label>
+    </p>
+    <p>
+        <select id="agentSelect">
+            <option th:each="opt : ${agents}" th:value="${opt.name}" th:text="${opt.name}"></option>
+        </select>
+        <button type="button" class="btn-primary" onclick="loadAgent()">Load Agent</button>
+    </p>
+
+    <div th:each="agent : ${agents}"
+         class="agent-panel"
+         th:attr="data-agent=${agent.name}"
+         style="display:none; flex-direction:row; gap:20px;">
+        <div style="flex:2">
+            <div class="card state-panel state-default" style="display:none">
+                <h2 th:text="${agent.name}">Agent</h2>
+                <p>No active route</p>
+                <form th:action="@{/dashboard/select-route}" th:id="${'selectForm-' + agent.name}" method="post">
+                    <input type="hidden" name="agentName" th:value="${agent.name}"/>
+                    <button type="button" class="btn-primary"
+                            th:attr="onclick=|submitWithState('selectForm-[[${agent.name}]]', 'on_route');|">Select Route</button>
+                </form>
+            </div>
+
+            <div class="card state-panel state-on_route" style="display:none">
+                <h2>En Route</h2>
+                <table>
+                    <tr>
+                        <th>Package ID</th>
+                        <th>Source</th>
+                        <th>Destination</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr th:each="pkg : ${agent.carriedPackages}">
+                        <td th:text="${pkg.packageID}"></td>
+                        <td th:text="${pkg.source}"></td>
+                        <td th:text="${pkg.destination}"></td>
+                        <td th:text="${pkg.status}"></td>
+                    </tr>
+                </table>
+                <form th:action="@{/dashboard/arrive}" th:id="${'arriveForm-' + agent.name}" method="post">
+                    <input type="hidden" name="agentName" th:value="${agent.name}"/>
+                    <button type="button" class="btn-primary"
+                            th:attr="onclick=|submitWithState('arriveForm-[[${agent.name}]]', 'arrived');|">Arrive at Hub</button>
+                </form>
+            </div>
+
+            <div class="card state-panel state-arrived" style="display:none">
+                <h2 th:text="|Arrived at ${agent.currentLocation}|">Arrived</h2>
+                <table th:if="${agent.activeRoute != null}">
+                    <tr>
+                        <th>Package ID</th>
+                        <th>Source</th>
+                        <th>Destination</th>
+                        <th></th>
+                    </tr>
+                    <tr th:each="wpkg : ${agent.activeRoute.getPackagesAtStop(agent.currentStopIndex)}">
+                        <td th:text="${wpkg.packageID}"></td>
+                        <td th:text="${wpkg.source}"></td>
+                        <td th:text="${wpkg.destination}"></td>
+                        <td>
+                            <form th:action="@{/dashboard/flag-lost}" method="post" th:id="${'flagLostForm-' + wpkg.packageID}">
+                                <input type="hidden" name="agentName" th:value="${agent.name}"/>
+                                <input type="hidden" name="packageId" th:value="${wpkg.packageID}"/>
+                                <button type="button" class="btn-danger"
+                                        th:attr="onclick=|submitWithState('flagLostForm-[[${wpkg.packageID}]]', 'arrived');|">Flag as Lost</button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+                <p th:if="${agent.activeRoute == null}">No active route</p>
+                <form th:action="@{/dashboard/confirm-pickups}" th:id="${'confirmForm-' + agent.name}" method="post">
+                    <input type="hidden" name="agentName" th:value="${agent.name}"/>
+                    <button type="button" class="btn-primary"
+                            th:attr="onclick=|submitWithState('confirmForm-[[${agent.name}]]', 'confirmed');|">Confirm Pickups</button>
+                </form>
+            </div>
+
+            <div class="card state-panel state-confirmed" style="display:none">
+                <h2>Pickups Confirmed</h2>
+                <p>Packages to collect from hub staff</p>
+                <table>
+                    <tr>
+                        <th>Package ID</th>
+                        <th>Source</th>
+                        <th>Destination</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr th:each="cpkg : ${agent.carriedPackages}">
+                        <td th:text="${cpkg.packageID}"></td>
+                        <td th:text="${cpkg.source}"></td>
+                        <td th:text="${cpkg.destination}"></td>
+                        <td th:text="${cpkg.status}"></td>
+                    </tr>
+                </table>
+                <form th:action="@{/dashboard/depart}" th:id="${'departForm-' + agent.name}" method="post">
+                    <input type="hidden" name="agentName" th:value="${agent.name}"/>
+                    <button type="button" class="btn-primary"
+                            th:attr="onclick=|submitWithState('departForm-[[${agent.name}]]', 'on_route');|">Depart to Next Hub</button>
+                </form>
+            </div>
+        </div>
+
+        <div style="flex:1">
+            <div class="card">
+                <h2 th:text="${agent.name}">Agent</h2>
+                <p th:text="${agent.available ? 'Available' : 'On Route'}">Status</p>
+                <p th:text="${'Current location: ' + agent.currentLocation}">Location</p>
+                <p th:if="${agent.activeRoute != null}"
+                   th:with="nextIdx=${agent.currentStopIndex + 1}, len=${#arrays.length(agent.activeRoute.stops)}">
+                    <span th:if="${nextIdx &lt; len}">Next hub:
+                        <span th:text="${agent.activeRoute.stops[__${nextIdx}__]}"></span></span>
+                    <span th:if="${nextIdx &ge; len}">At end of route</span>
+                </p>
+                <p th:if="${agent.activeRoute == null}">No active route</p>
+                <p th:if="${agent.activeRoute != null}">Full route:
+                    <span th:each="stop, stopIter : ${agent.activeRoute.stops}">
+                        <span th:text="${stop}"></span>
+                        <span th:if="${!stopIter.last}"> → </span>
+                    </span>
+                </p>
+                <p th:text="${'Packages carried: ' + #lists.size(agent.carriedPackages)}">0</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>All Active Packages</h2>
+        <table>
+            <tr>
+                <th>Package ID</th>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>Status</th>
+                <th>Last Known Hub</th>
+                <th>Carried By</th>
+            </tr>
+            <tr th:each="pkg : ${activePackages}">
+                <td th:text="${pkg.packageID}"></td>
+                <td th:text="${pkg.source}"></td>
+                <td th:text="${pkg.destination}"></td>
+                <td th:text="${pkg.status}"></td>
+                <td th:text="${pkg.lastKnownHubCity}"></td>
+                <td>
+                    <span th:if="${pkg.currentAgent != null}" th:text="${pkg.currentAgent.name}"></span>
+                    <span th:if="${pkg.currentAgent == null}">In Warehouse</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<script>
+    function loadAgent() {
+        const name = document.getElementById('agentSelect').value;
+        localStorage.setItem('selectedAgent', name);
+        localStorage.setItem('dashboardState', 'default');
+        location.reload();
+    }
+
+    function submitWithState(formId, state) {
+        localStorage.setItem('dashboardState', state);
+        document.getElementById(formId).submit();
+    }
+
+    window.onload = function() {
+        const name = localStorage.getItem('selectedAgent');
+        const state = localStorage.getItem('dashboardState') || 'default';
+        if (name) {
+            const select = document.getElementById('agentSelect');
+            select.value = name;
+            document.querySelectorAll('.agent-panel').forEach(el => {
+                if (el.dataset.agent === name) {
+                    el.style.display = 'flex';
+                    el.querySelectorAll('.state-panel').forEach(p => p.style.display = 'none');
+                    const active = el.querySelector('.state-' + state);
+                    if (active) active.style.display = 'block';
+                }
+            });
+        }
+    };
+</script>
 </body>
 </html>
