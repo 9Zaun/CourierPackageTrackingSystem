@@ -188,7 +188,8 @@ public class DeliveryAgent {
             return;
         }
         for (Package pkg : new ArrayList<>(carriedPackages)) {
-            if (!pkg.isChained() && !pkg.getDestination().equals(currentLocation)) {
+            boolean effectivelyDirect = !pkg.isChained() || pkg.waitingForChainedRoute();
+            if (effectivelyDirect && !pkg.getDestination().equals(currentLocation)) {
                 activeRoute.addPackageToWarehouse(currentStopIndex, pkg);
                 pkg.setStatus(PackageStatus.IN_WAREHOUSE);
                 pkg.setLastKnownHubCity(currentLocation);
