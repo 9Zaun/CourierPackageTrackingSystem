@@ -24,6 +24,14 @@ public class Route {
         this.warehousePackageCount = 0;
     }
 
+    public int getLiveWarehousePackageCount() {
+        int count = 0;
+        for (ArrayList<Package> list : warehouse.values()) {
+            count += list.size();
+        }
+        return count;
+    }
+
     public String getRouteID() {
         return routeID;
     }

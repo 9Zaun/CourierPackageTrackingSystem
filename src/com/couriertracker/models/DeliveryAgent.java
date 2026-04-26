@@ -77,8 +77,9 @@ public class DeliveryAgent {
         int maxCount = 0;
         Route nextRoute = null;
         for(Route route : ownedRoutes){ // find route with greatest demand 
-            if(route.getWarehousePackageCount() > maxCount){
-                maxCount = route.getWarehousePackageCount();
+            int liveCount = route.getLiveWarehousePackageCount();
+            if (liveCount > maxCount) {
+                maxCount = liveCount;
                 nextRoute = route;
             }
         }
