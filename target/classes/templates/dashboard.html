@@ -88,6 +88,18 @@
             <!-- STATE: CONFIRMED -->
             <div class="card state-panel state-confirmed" style="display:none">
                 <h2>Pickups Confirmed</h2>
+
+                <h3>Packages Dropped Off at This Stop</h3>
+                <table th:if="${not #lists.isEmpty(lastDroppedPackages)}">
+                    <tr><th>Package ID</th><th>Destination</th><th>Status</th></tr>
+                    <tr th:each="dpkg : ${lastDroppedPackages}">
+                        <td th:text="${dpkg.packageID}"></td>
+                        <td th:text="${dpkg.destination}"></td>
+                        <td th:text="${dpkg.status}"></td>
+                    </tr>
+                </table>
+                <p th:if="${#lists.isEmpty(lastDroppedPackages)}">No packages dropped off at this stop.</p>
+
                 <p>Packages to collect from hub staff</p>
                 <table>
                     <tr><th>Package ID</th><th>Source</th><th>Destination</th><th>Status</th></tr>

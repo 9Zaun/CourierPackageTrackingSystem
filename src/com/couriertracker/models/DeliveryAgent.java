@@ -215,6 +215,20 @@ public class DeliveryAgent {
                 pkg.setCurrentAgent(null);
                 carriedPackages.remove(pkg);
             }
+
+            // Handle chained first-leg package whose handoff hub was NOT reached
+            if (pkg.isChained() && !pkg.waitingForChainedRoute()
+                    && (pkg.getHandoffHub() == null || !pkg.getHandoffHub().equals(currentLocation))) {
+                activeRoute.addPackageToWarehouse(currentStopIndex, pkg);
+                pkg.setStatus(PackageStatus.IN_WAREHOUSE);
+                pkg.setLastKnownHubCity(currentLocation);
+                pkg.setCurrentStopIndex(currentStopIndex);
+                pkg.setHubArrivalStep(-1);
+                pkg.addTrackingRecord(new TrackingRecord(
+                    pkg.getPackageID(), currentLocation, PackageStatus.IN_WAREHOUSE, this));
+                pkg.setCurrentAgent(null);
+                carriedPackages.remove(pkg);
+            }
         }
     }
 
