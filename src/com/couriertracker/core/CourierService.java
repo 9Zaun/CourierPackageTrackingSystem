@@ -17,6 +17,10 @@ public class CourierService {
         setupAgentsAndRoutes();
     }
 
+    public List<Package> getLastDroppedPackages() {
+        return inventory.getLastDroppedPackages();
+    }
+
     public Package getPackageById(String packageId){
         // check active packages
         for(Package p : inventory.getActivePackages()){

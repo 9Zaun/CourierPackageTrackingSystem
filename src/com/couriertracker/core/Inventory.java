@@ -29,6 +29,7 @@ public class Inventory {
     private final InventoryFileHandler inventoryFileHandler;
     private final TransactionFileHandler transactionFileHandler;
     private int systemStepCount;
+    private ArrayList<Package> lastDroppedPackages = new ArrayList<>();
 
     public Inventory() {
         this.agents = new ArrayList<>();
@@ -42,6 +43,10 @@ public class Inventory {
         this.inventoryFileHandler = new InventoryFileHandler();
         this.transactionFileHandler = new TransactionFileHandler();
         this.systemStepCount = 0;
+    }
+
+    public List<Package> getLastDroppedPackages() {
+        return Collections.unmodifiableList(lastDroppedPackages);
     }
 
     public Package getPackageById(String packageId){
@@ -283,6 +288,7 @@ public class Inventory {
     public void handleConfirmPickups(DeliveryAgent agent) {
         agent.pickUpPackages();
         ArrayList<Package> droppedPackages = agent.dropOffPackages();
+        lastDroppedPackages = droppedPackages;
         if (agent.getActiveRoute() != null) {
             boolean finished = agent.getCurrentStopIndex() == agent.getActiveRoute().getStops().length - 1 && !agent.isReverseDirection()
                 || agent.getCurrentStopIndex() == 0 && agent.isReverseDirection();

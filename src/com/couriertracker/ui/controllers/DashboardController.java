@@ -23,6 +23,7 @@ public class DashboardController {
         model.addAttribute("agents", courierService.getAgents());
         model.addAttribute("routes", courierService.getRoutes());
         model.addAttribute("activePackages", courierService.getActivePackages());
+        model.addAttribute("lastDroppedPackages", courierService.getLastDroppedPackages());
         return "dashboard";
     }
 

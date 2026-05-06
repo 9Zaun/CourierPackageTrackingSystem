@@ -9,6 +9,7 @@ com/couriertracker/models/DeliveryAgent.class
 com/couriertracker/models/Route.class
 com/couriertracker/CourierTrackerApplication.class
 com/couriertracker/ui/controllers/HomeController.class
+com/couriertracker/models/PackageType.class
 com/couriertracker/models/Package.class
 com/couriertracker/handlers/TransactionFileHandler.class
 com/couriertracker/core/Inventory$LostTicket.class
