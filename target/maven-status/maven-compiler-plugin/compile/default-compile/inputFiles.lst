@@ -4,6 +4,7 @@
 /Users/gjp/CourierPackageTrackingSystem/src/com/couriertracker/core/CourierService.java
 /Users/gjp/CourierPackageTrackingSystem/src/com/couriertracker/core/Inventory.java
 /Users/gjp/CourierPackageTrackingSystem/src/com/couriertracker/enums/PackageStatus.java
+/Users/gjp/CourierPackageTrackingSystem/src/com/couriertracker/handlers/FileHandler.java
 /Users/gjp/CourierPackageTrackingSystem/src/com/couriertracker/handlers/InventoryFileHandler.java
 /Users/gjp/CourierPackageTrackingSystem/src/com/couriertracker/handlers/TransactionFileHandler.java
 /Users/gjp/CourierPackageTrackingSystem/src/com/couriertracker/interfaces/PackageType.java

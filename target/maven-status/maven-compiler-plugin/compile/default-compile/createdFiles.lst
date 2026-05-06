@@ -3,6 +3,7 @@ com/couriertracker/models/Customer.class
 com/couriertracker/handlers/InventoryFileHandler.class
 com/couriertracker/enums/PackageStatus.class
 com/couriertracker/ui/controllers/LostPackageController.class
+com/couriertracker/handlers/FileHandler.class
 com/couriertracker/core/CourierService.class
 com/couriertracker/ui/controllers/DashboardController.class
 com/couriertracker/models/DeliveryAgent.class
